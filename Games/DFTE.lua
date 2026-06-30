@@ -1,4 +1,5 @@
 local AssetQualityService = game:GetService("AssetQualityService")
+
 return function(Library)
     local tab = Library:CreateTab("DFTE", "brain")
     local player = game.Players.LocalPlayer
@@ -9,18 +10,18 @@ return function(Library)
 
             local conn
 
-            -- probably add this func to utility once im done wit dis
             local function apply(inst)
                 if inst:IsA("BasePart") then
                     inst.CanCollide = false
                     inst.CanTouch = false
                 end
             end
-            
+
             local function disableWaveCollisions(model)
                 for _, inst in ipairs(model:GetDescendants()) do
                     if inst.Name == "Wave" then
                         apply(inst)
+
                         for _, part in ipairs(inst:GetDescendants()) do
                             apply(part)
                         end
@@ -29,12 +30,14 @@ return function(Library)
             end
 
             if value then
-                for _, model in ipairs(workspace.Tsunamis:GetChildren()) do
+                for _, model in ipairs(workspace:WaitForChild("Tsunamis"):GetChildren()) do
                     disableWaveCollisions(model)
                 end
+
                 conn = workspace.Tsunamis.DescendantAdded:Connect(function(inst)
-                    apply(inst)
                     if inst.Name == "Wave" then
+                        apply(inst)
+
                         for _, part in ipairs(inst:GetDescendants()) do
                             apply(part)
                         end
@@ -50,59 +53,107 @@ return function(Library)
         end
     })
 
+    local autoFarmEnabled = false
+    local currentTarget = nil
+    local currentBestTier = -1
+
+    local spawners = workspace:WaitForChild("ItemSpawners")
+
+    local tiers = {
+        ["Common"] = 0,
+        ["Uncommon"] = 1,
+        ["Rare"] = 2,
+        ["Epic"] = 3,
+        ["Legendary"] = 4,
+        ["Mythical"] = 5,
+        ["Godly"] = 6,
+        ["Secert"] = 7,
+        ["Admin"] = 8,
+        ["Ancient"] = 9,
+        ["Divine"] = 10,
+        ["Celestial"] = 11
+    }
+
+    local itemAdded = Instance.new("BindableEvent")
+
+    local function getTier(item)
+        return tiers[item.Name] or 0
+    end
+
+    local function evaluate(item)
+        if not item or not item:IsDescendantOf(workspace) then return end
+        if not item:FindFirstChild("HumanoidRootPart") then return end
+
+        local tier = getTier(item.Name)
+
+        if tier > currentBestTier then
+            currentBestTier = tier
+            currentTarget = item
+        end
+    end
+
+    for _, spawner in ipairs(spawners:GetChildren()) do
+        spawner.DescendantAdded:Connect(function(inst)
+            if inst.Name == "SpawnedItem" then
+                evaluate(inst)
+                itemAdded:Fire()
+            end
+        end)
+    end
+
     Library:CreateToggle(tab, {
-    Name = "Auto Farm",
-    Callback = function(value)
-        autoFarmEnabled = value
+        Name = "Auto Farm",
+        Callback = function(value)
+            autoFarmEnabled = value
 
-        if value then
-            task.spawn(function()
-                local char = player.Character or player.CharacterAdded:Wait()
-                local hrp = char:WaitForChild("HumanoidRootPart")
+            if value then
+                task.spawn(function()
+                    local char = player.Character or player.CharacterAdded:Wait()
+                    local hrp = char:WaitForChild("HumanoidRootPart")
 
-                while autoFarmEnabled do
-                    -- validate target
-                    if not currentTarget
-                        or not currentTarget:FindFirstChild("HumanoidRootPart")
-                        or not currentTarget:IsDescendantOf(workspace) then
+                    while autoFarmEnabled do
 
-                        currentTarget = nil
-                        currentBestTier = -1
+                        if not currentTarget
+                            or not currentTarget:IsDescendantOf(workspace)
+                            or not currentTarget:FindFirstChild("HumanoidRootPart") then
 
-                        for _, spawner in ipairs(spawners:GetChildren()) do
-                            for _, item in ipairs(spawner:GetDescendants()) do
-                                if item.Name == "SpawnedItem" then
-                                    setBest(item)
+                            currentTarget = nil
+                            currentBestTier = -1
+
+                            itemAdded.Event:Wait()
+
+                            for _, spawner in ipairs(spawners:GetChildren()) do
+                                for _, item in ipairs(spawner:GetDescendants()) do
+                                    if item.Name == "SpawnedItem" then
+                                        evaluate(item)
+                                    end
                                 end
                             end
                         end
-                    end
 
-                    -- act on best
-                    if currentTarget then
-                        local hrpt = currentTarget:FindFirstChild("HumanoidRootPart")
-                        local prompt = hrpt and hrpt:FindFirstChildOfClass("ProximityPrompt")
+                        if currentTarget then
+                            local hrpt = currentTarget:FindFirstChild("HumanoidRootPart")
+                            local prompt = hrpt and hrpt:FindFirstChildOfClass("ProximityPrompt")
 
-                        if hrpt and prompt then
-                            local old = hrp.CFrame
+                            if hrpt and prompt then
+                                local old = hrp.CFrame
 
-                            hrp.CFrame = hrpt.CFrame
-                            fireproximityprompt(prompt)
+                                hrp.CFrame = hrpt.CFrame
+                                fireproximityprompt(prompt)
 
-                            task.wait(0.1)
-                            hrp.CFrame = old
+                                task.wait(0.1)
+                                hrp.CFrame = old
+                            end
                         end
-                    end
 
-                    task.wait(0.5)
-                end
-            end)
-        else
-            currentTarget = nil
-            currentBestTier = -1
+                        task.wait(0.3)
+                    end
+                end)
+            else
                 autoFarmEnabled = false
+                currentTarget = nil
+                currentBestTier = -1
             end
         end
     })
-
 end
