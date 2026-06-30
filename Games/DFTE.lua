@@ -1,5 +1,7 @@
+local AssetQualityService = game:GetService("AssetQualityService")
 return function(Library)
     local tab = Library:CreateTab("DFTE", "brain")
+    local player = game.Players.LocalPlayer
 
     Library:CreateToggle(tab, {
         Name = "Wave God Mode",
@@ -45,6 +47,24 @@ return function(Library)
                     conn = nil
                 end
             end
+        end
+    })
+
+    Library:CreateButton(tab, {
+        Name = "Auto Farm",
+        Callback = function()
+            --local conneciton
+
+            local intialPos = player.Character.HumanoidRootPart.CFrame
+
+            for _, spawned in ipairs(workspace.ItemSpawners.Ancient:GetDescendants()) do
+                if spawned.Name == "SpawnedItem" and spawned then
+                    player.Character.HumanoidRootPart.CFrame = spawned.HumanoidRootPart.CFrame
+                    fireproximityprompt(spawned.HumanoidRootPart.ProximityPrompt)
+                    player.Character.HumanoidRootPart.CFrame = intialPos
+                end
+            end
+            
         end
     })
 
