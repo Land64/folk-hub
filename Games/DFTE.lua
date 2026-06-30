@@ -5,23 +5,29 @@ return function(Library)
         Name = "Wave God Mode",
         Callback = function(value)
 
-            local connection
+            local conn
 
-            if value then
-                for _, inst in ipairs(workspace.Tsunamis:GetDescendants()) do
+            -- probably add this func to utility once im done wit dis
+            local function apply(inst)
+                if not inst:IsA("Model") then
                     inst.CanCollide = false
                     inst.CanTouch = false
                 end
+            end
 
-                connection = workspace.Tsunamis.DescendantAdded:Connect(function(inst)
-                    inst.CanCollide = false
-                    inst.CanTouch = false
+            if value then
+                for _, inst in ipairs(workspace.Tsunamis:GetDescendants()) do
+                    apply(inst)
+                end
+
+                conn = workspace.Tsunamis.DescendantAdded:Connect(function(inst)
+                    apply(inst)
                 end)
 
             else
-                if connection then
-                    connection:Disconnect()
-                    connection = nil
+                if conn then
+                    conn:Disconnect()
+                    conn = nil
                 end
             end
         end
