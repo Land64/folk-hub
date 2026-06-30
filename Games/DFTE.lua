@@ -17,7 +17,8 @@ return function(Library)
             
             local function disableWaveCollisions(model)
                 for _, inst in ipairs(model:GetDescendants()) do
-                    if inst.Name == "Wave" and inst:IsA("Model") then
+                    if inst.Name == "Wave" then
+                        apply(inst)
                         for _, part in ipairs(inst:GetDescendants()) do
                             apply(part)
                         end
@@ -29,9 +30,13 @@ return function(Library)
                 for _, model in ipairs(workspace.Tsunamis:GetChildren()) do
                     disableWaveCollisions(model)
                 end
-
                 conn = workspace.Tsunamis.DescendantAdded:Connect(function(inst)
                     apply(inst)
+                    if inst.Name == "Wave" then
+                        for _, part in ipairs(inst:GetDescendants()) do
+                            apply(part)
+                        end
+                    end
                 end)
 
             else
