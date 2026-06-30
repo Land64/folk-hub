@@ -32,12 +32,12 @@ function Library.UI:SetupWindow()
     return self.Window
 end
 
-function Library.UI:CreateTab(name)
+function Library.UI:CreateTab(name, icon)
     if not self.Window then
         self:SetupWindow()
     end
 
-    local tab = self.Window:CreateTab(name)
+    local tab = self.Window:CreateTab(name, icon or "globe")
     self.Tabs[name] = tab
     return tab
 end
@@ -61,8 +61,8 @@ function Library:SetupWindow()
     return self.UI:SetupWindow()
 end
 
-function Library:CreateTab(name)
-    return self.UI:CreateTab(name)
+function Library:CreateTab(name, icon)
+    return self.UI:CreateTab(name, icon)
 end
 
 function Library:SendNotification(title, content, duration)
@@ -164,11 +164,15 @@ function Library:LoadGames()
         return false
     end
 
+    local loaded = 0
     for _, gameData in ipairs(games) do
-        self:LoadGame(gameData)
+        if self:LoadGame(gameData) then
+            loaded += 1
+        end
     end
 
-    return true
+    print(("Loaded %d game module(s)"):format(loaded))
+    return loaded > 0
 end
 
 function Library:CreateSection(tab, name)
