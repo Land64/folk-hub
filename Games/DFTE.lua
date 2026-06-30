@@ -16,9 +16,9 @@ return function(Library)
             end
             
             local function disableWaveCollisions(model)
-                for _, wave in ipairs(model:FindDescendants("Wave")) do
-                    if wave:IsA("Model") then
-                        for _, part in ipairs(wave:GetDescendants()) do
+                for _, inst in ipairs(model:GetDescendants()) do
+                    if inst.Name == "Wave" and inst:IsA("Model") then
+                        for _, part in ipairs(inst:GetDescendants()) do
                             apply(part)
                         end
                     end
