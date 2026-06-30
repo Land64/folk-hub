@@ -140,7 +140,7 @@ return function(Library)
                                 local old = hrp.CFrame
                             
                                 local tweenInfo = TweenInfo.new(
-                                    0.5, -- time
+                                    5, -- time
                                     Enum.EasingStyle.Quad,
                                     Enum.EasingDirection.Out
                                 )
