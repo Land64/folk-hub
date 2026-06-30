@@ -1,4 +1,5 @@
 local AssetQualityService = game:GetService("AssetQualityService")
+local TweenService = game:GetService("TweenService")
 
 return function(Library)
     local tab = Library:CreateTab("DFTE", "brain")
@@ -137,14 +138,33 @@ return function(Library)
 
                             if hrpt and prompt then
                                 local old = hrp.CFrame
-
-                                hrp.CFrame = hrpt.CFrame
-                                task.wait(1)
+                            
+                                local tweenInfo = TweenInfo.new(
+                                    0.5, -- time
+                                    Enum.EasingStyle.Quad,
+                                    Enum.EasingDirection.Out
+                                )
+                            
+                                local tween = TweenService:Create(hrp, tweenInfo, {
+                                    CFrame = hrpt.CFrame
+                                })
+                            
+                                tween:Play()
+                                tween.Completed:Wait()
+                            
+                                task.wait(0.1)
                                 fireproximityprompt(prompt)
-                                
-                                task.wait(1)
-                                hrp.CFrame = old
-                                task.wait(1)
+                            
+                                task.wait(0.1)
+                            
+                                local tweenBack = TweenService:Create(hrp, tweenInfo, {
+                                    CFrame = old
+                                })
+                            
+                                tweenBack:Play()
+                                tweenBack.Completed:Wait()
+                            
+                                task.wait(0.2)
                             end
                         end
 
