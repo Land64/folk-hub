@@ -5,6 +5,19 @@ return function(Library)
         return
     end
 
-    Library:CreateSection(tab, "General")
-    Library:SendNotification("Universal", "Universal module loaded", 3)
+    Library:CreateSection(tab, "Useful tools")
+
+    Library:CreateButton(tab, {
+        Name = "Run Cobalt",
+        Callback = function()
+            loadstring(game:HttpGet("https://github.com/notpoiu/cobalt/releases/latest/download/Cobalt.luau"))()
+        end
+    })
+
+    Library:CreateButton(tab, {
+        Name = "Run Dex",
+        Callback = function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
+        end
+    })
 end
