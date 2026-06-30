@@ -51,6 +51,7 @@ function Library.UI:SendNotification(title, content, duration)
 end
 
 Library.Utils = {}
+Library.Utils.REPO = Library.REPO
 
 function Library.Utils:fastLoadstring(file)
     local source = game:HttpGet(self.REPO .. file)
@@ -126,6 +127,8 @@ function Library:LoadGame(gameData)
         return false
     end
 
+    print(("Loading game module: %s"):format(gameData.Name or gameData.File))
+
     local ok, module = pcall(function()
         return self.Utils:fastLoadstring(gameData.File)
     end)
@@ -135,18 +138,33 @@ function Library:LoadGame(gameData)
         return false
     end
 
+    print(("Module type for %s: %s"):format(gameData.Name or gameData.File, type(module)))
+
     if type(module) == "function" then
-        module(self)
+        local moduleOk, moduleErr = pcall(function()
+            module(self)
+        end)
+        if not moduleOk then
+            warn(("Error executing module %s: %s"):format(gameData.Name or gameData.File, tostring(moduleErr)))
+            return false
+        end
         self.GameModules[gameData.Name or gameData.File] = module
         return true
     end
 
     if type(module) == "table" and type(module.Init) == "function" then
-        module.Init(self)
+        local moduleOk, moduleErr = pcall(function()
+            module.Init(self)
+        end)
+        if not moduleOk then
+            warn(("Error executing module.Init %s: %s"):format(gameData.Name or gameData.File, tostring(moduleErr)))
+            return false
+        end
         self.GameModules[gameData.Name or gameData.File] = module
         return true
     end
 
+    warn(("Module %s has no callable entry point"):format(gameData.Name or gameData.File))
     return false
 end
 
