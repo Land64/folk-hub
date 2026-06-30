@@ -51,10 +51,9 @@ function Library.UI:SendNotification(title, content, duration)
 end
 
 Library.Utils = {}
-Library.Utils.REPO = Library.REPO
 
 function Library.Utils:fastLoadstring(file)
-    local source = game:HttpGet(self.REPO .. file)
+    local source = game:HttpGet(Library.REPO .. file)
     return loadstring(source)()
 end
 
