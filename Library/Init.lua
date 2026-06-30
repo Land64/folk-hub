@@ -52,8 +52,8 @@ end
 
 Library.Utils = {}
 
-function Library.Utils:fastLoadstring(file)
-    local source = game:HttpGet(Library.REPO .. file)
+function Library.Utils.fastLoadstring(repo, file)
+    local source = game:HttpGet(repo .. file)
     return loadstring(source)()
 end
 
@@ -129,7 +129,7 @@ function Library:LoadGame(gameData)
     print(("Loading game module: %s"):format(gameData.Name or gameData.File))
 
     local ok, module = pcall(function()
-        return self.Utils:fastLoadstring(gameData.File)
+        return Library.Utils.fastLoadstring(self.REPO, gameData.File)
     end)
 
     if not ok then
@@ -169,7 +169,7 @@ end
 
 function Library:LoadGames()
     local ok, games = pcall(function()
-        return self.Utils:fastLoadstring("games.lua")
+        return Library.Utils.fastLoadstring(self.REPO, "games.lua")
     end)
 
     if not ok then
