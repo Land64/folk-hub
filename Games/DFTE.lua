@@ -9,15 +9,25 @@ return function(Library)
 
             -- probably add this func to utility once im done wit dis
             local function apply(inst)
-                if not inst:IsA("Model") then
+                if inst:IsA("BasePart") then
                     inst.CanCollide = false
                     inst.CanTouch = false
                 end
             end
+            
+            local function disableWaveCollisions(model)
+                for _, wave in ipairs(model:FindDescendants("Wave")) do
+                    if wave:IsA("Model") then
+                        for _, part in ipairs(wave:GetDescendants()) do
+                            apply(part)
+                        end
+                    end
+                end
+            end
 
             if value then
-                for _, inst in ipairs(workspace.Tsunamis:GetDescendants()) do
-                    apply(inst)
+                for _, model in ipairs(workspace.Tsunamis:GetChildren()) do
+                    disableWaveCollisions(model)
                 end
 
                 conn = workspace.Tsunamis.DescendantAdded:Connect(function(inst)
