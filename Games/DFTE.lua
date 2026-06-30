@@ -10,11 +10,14 @@ return function(Library)
             if value then
                 for _, inst in ipairs(workspace.Tsunamis:GetDescendants()) do
                     inst.CanCollide = false
+                    inst.CanTouch = false
                 end
 
                 connection = workspace.Tsunamis.DescendantAdded:Connect(function(inst)
                     inst.CanCollide = false
+                    inst.CanTouch = false
                 end)
+
             else
                 if connection then
                     connection:Disconnect()
