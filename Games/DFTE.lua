@@ -139,10 +139,12 @@ return function(Library)
                                 local old = hrp.CFrame
 
                                 hrp.CFrame = hrpt.CFrame
+                                task.wait(1)
                                 fireproximityprompt(prompt)
                                 
-                                task.wait(0.5)
+                                task.wait(1)
                                 hrp.CFrame = old
+                                task.wait(1)
                             end
                         end
 
