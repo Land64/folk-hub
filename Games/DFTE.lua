@@ -140,8 +140,8 @@ return function(Library)
 
                                 hrp.CFrame = hrpt.CFrame
                                 fireproximityprompt(prompt)
-
-                                task.wait(0.1)
+                                
+                                task.wait(0.5)
                                 hrp.CFrame = old
                             end
                         end
